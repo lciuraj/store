@@ -66,7 +66,7 @@ po zbudowaniu projektu, **przejdź do sekcji**: ["## Uruchamianie serwera aplika
 
 ## Uruchamianie serwera aplikacyjnego Tomcat
 
-1. **Pobierz Apache Tomcat** z oficjalnej strony (użyj najnowszej stabilnej wersji).
+1. **Pobierz Apache Tomcat** z oficjalnej strony (użyj wersji 10).
 
 2. **Rozpakuj pobrany plik ZIP** (lub TAR.GZ dla systemów Unix) do wybranego katalogu.
 
