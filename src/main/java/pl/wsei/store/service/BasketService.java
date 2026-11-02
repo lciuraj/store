@@ -16,10 +16,15 @@ public class BasketService {
         try {
             em.getTransaction().begin();
 
-            Basket basket = new Basket();
-            basket.setItem(item);
-            basket.setQuantity(quantity);
-            em.persist(basket);
+            Basket existing = findByItem(em, item);
+            if (existing != null) {
+                existing.setQuantity(existing.getQuantity() + quantity);
+            } else {
+                Basket basket = new Basket();
+                basket.setItem(item);
+                basket.setQuantity(quantity);
+                em.persist(basket);
+            }
 
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -44,6 +49,14 @@ public class BasketService {
         } finally {
             em.close();
         }
+    }
+
+    private Basket findByItem(EntityManager em, String item) {
+        List<Basket> found = em
+                .createQuery("SELECT b FROM Basket b WHERE b.item = :item", Basket.class)
+                .setParameter("item", item)
+                .getResultList();
+        return found.isEmpty() ? null : found.get(0);
     }
 
     public List<Basket> getAllItems() {
