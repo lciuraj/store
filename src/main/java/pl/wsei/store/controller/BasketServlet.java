@@ -16,10 +16,14 @@ public class BasketServlet extends HttpServlet {
 
     static final String ERROR_MISSING_ITEM = "missing-item";
     static final String ERROR_INVALID_QUANTITY = "invalid-quantity";
+    static final String ERROR_NOT_IN_BASKET = "not-in-basket";
+    static final String ERROR_NOT_ENOUGH = "not-enough";
 
     private static final Map<String, String> ERROR_MESSAGES = Map.of(
             ERROR_MISSING_ITEM, "Nie wybrano produktu.",
-            ERROR_INVALID_QUANTITY, "Ilość musi być liczbą całkowitą większą od zera."
+            ERROR_INVALID_QUANTITY, "Ilość musi być liczbą całkowitą większą od zera.",
+            ERROR_NOT_IN_BASKET, "Tego produktu nie ma w koszyku - nie ma czego odjąć.",
+            ERROR_NOT_ENOUGH, "W koszyku jest mniej sztuk tego produktu, niż chcesz odjąć. Koszyk się nie zmienił."
     );
 
     private BasketService basketService = new BasketService();

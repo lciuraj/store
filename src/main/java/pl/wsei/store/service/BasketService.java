@@ -35,6 +35,41 @@ public class BasketService {
         }
     }
 
+    public enum SellResult {
+        SOLD,
+        NOT_IN_BASKET,
+        NOT_ENOUGH
+    }
+
+    public SellResult sellItem(String item, int quantity) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+
+            SellResult result;
+            Basket existing = findByItem(em, item);
+            if (existing == null) {
+                result = SellResult.NOT_IN_BASKET;
+            } else if (existing.getQuantity() < quantity) {
+                result = SellResult.NOT_ENOUGH;
+            } else if (existing.getQuantity() == quantity) {
+                em.remove(existing);
+                result = SellResult.SOLD;
+            } else {
+                existing.setQuantity(existing.getQuantity() - quantity);
+                result = SellResult.SOLD;
+            }
+
+            em.getTransaction().commit();
+            return result;
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
     public void clearBasket() {
         EntityManager em = emf.createEntityManager();
         try {
