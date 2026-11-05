@@ -12,5 +12,10 @@
     <input type="submit" value="Kup marchewke">
 </form>
 
+<br>
+<form action="${pageContext.request.contextPath}/index.jsp" method="get">
+    <input type="submit" value="Rozmyśliłem się">
+</form>
+
 </body>
 </html>
