@@ -11,14 +11,20 @@ public class BasketService {
 
     private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("pu");
 
-    public void buyItem(String item) {
+    public void buyItem(String item, int quantity) {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
 
-            Basket basket = new Basket();
-            basket.setItem(item);
-            em.persist(basket);
+            Basket existing = findByItem(em, item);
+            if (existing != null) {
+                existing.setQuantity(existing.getQuantity() + quantity);
+            } else {
+                Basket basket = new Basket();
+                basket.setItem(item);
+                basket.setQuantity(quantity);
+                em.persist(basket);
+            }
 
             em.getTransaction().commit();
         } catch (Exception e) {
@@ -27,6 +33,65 @@ public class BasketService {
         } finally {
             em.close();
         }
+    }
+
+    public enum SellResult {
+        SOLD,
+        NOT_IN_BASKET,
+        NOT_ENOUGH
+    }
+
+    public SellResult sellItem(String item, int quantity) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+
+            SellResult result;
+            Basket existing = findByItem(em, item);
+            if (existing == null) {
+                result = SellResult.NOT_IN_BASKET;
+            } else if (existing.getQuantity() < quantity) {
+                result = SellResult.NOT_ENOUGH;
+            } else if (existing.getQuantity() == quantity) {
+                em.remove(existing);
+                result = SellResult.SOLD;
+            } else {
+                existing.setQuantity(existing.getQuantity() - quantity);
+                result = SellResult.SOLD;
+            }
+
+            em.getTransaction().commit();
+            return result;
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void clearBasket() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+
+            em.createQuery("DELETE FROM Basket").executeUpdate();
+
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    private Basket findByItem(EntityManager em, String item) {
+        List<Basket> found = em
+                .createQuery("SELECT b FROM Basket b WHERE b.item = :item", Basket.class)
+                .setParameter("item", item)
+                .getResultList();
+        return found.isEmpty() ? null : found.get(0);
     }
 
     public List<Basket> getAllItems() {

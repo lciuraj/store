@@ -2,6 +2,7 @@ package pl.wsei.store.controller;
 
 import java.io.*;
 import java.util.List;
+import java.util.Map;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
@@ -12,6 +13,18 @@ import pl.wsei.store.service.BasketService;
 
 @WebServlet(name = "BasketServlet", value = "/basket-servlet")
 public class BasketServlet extends HttpServlet {
+
+    static final String ERROR_MISSING_ITEM = "missing-item";
+    static final String ERROR_INVALID_QUANTITY = "invalid-quantity";
+    static final String ERROR_NOT_IN_BASKET = "not-in-basket";
+    static final String ERROR_NOT_ENOUGH = "not-enough";
+
+    private static final Map<String, String> ERROR_MESSAGES = Map.of(
+            ERROR_MISSING_ITEM, "Nie wybrano produktu.",
+            ERROR_INVALID_QUANTITY, "Ilość musi być liczbą całkowitą większą od zera.",
+            ERROR_NOT_IN_BASKET, "Tego produktu nie ma w koszyku - nie ma czego odjąć.",
+            ERROR_NOT_ENOUGH, "W koszyku jest mniej sztuk tego produktu, niż chcesz odjąć. Koszyk się nie zmienił."
+    );
 
     private BasketService basketService = new BasketService();
 
@@ -26,16 +39,28 @@ public class BasketServlet extends HttpServlet {
         out.println("<html><body>");
         out.println("<h1>Oto aktualny stan Twojego koszyka:</h1>");
 
+        String errorCode = request.getParameter("error");
+        String error = errorCode == null ? null : ERROR_MESSAGES.get(errorCode);
+        if (error != null) {
+            out.println("<p style='color:red'>" + error + "</p>");
+        }
+
         if (items != null && !items.isEmpty()) {
             out.println("<table border='1'>");
-            out.println("<tr><th>ID</th><th>Item</th></tr>");
+            out.println("<tr><th>ID</th><th>Item</th><th>Ilość</th></tr>");
             for (Basket item : items) {
                 out.println("<tr>");
                 out.println("<td>" + item.getId() + "</td>");
                 out.println("<td>" + item.getItem() + "</td>");
+                out.println("<td>" + item.getQuantity() + "</td>");
                 out.println("</tr>");
             }
             out.println("</table>");
+
+            out.println("<br>");
+            out.println("<form action='" + request.getContextPath() + "/clear-basket' method='post'>");
+            out.println("<input type='submit' value='Wyczyść koszyk'>");
+            out.println("</form>");
         } else {
             out.println("<p>Koszyk jest pusty.</p>");
         }
