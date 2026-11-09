@@ -3,6 +3,7 @@
 <head>
     <title>Marchewki</title>
 </head>
+
 <body>
 
 <h1>Oto dział w marchewkami:</h1>
@@ -11,6 +12,8 @@
     <input type="hidden" name="item" value="marchewka">
     <input type="submit" value="Kup marchewke">
 </form>
-
+<form action="${pageContext.request.contextPath}/" method="get">
+    <input type="submit" value="Rozmyśliłem się">
+</form>
 </body>
 </html>
